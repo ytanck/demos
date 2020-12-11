@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>数字翻牌器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body,
+        html {
+            height: 100%;
+        }
+
+        .wrap {
+            perspective: 1000px;
+            width: 320px;
+            height: 320px;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+            display: flex;
+            justify-content: center;
+            text-align: center;
+            flex-wrap: wrap;
+        }
+
+        .wrap div {
+            /* box-shadow: 5px 5px 10px #000; */
+            transition: 1s;
+            position: relative;
+            text-align: center;
+            line-height: 60px;
+            height: 60px;
+            width: 60px;
+            border-radius: 10px;
+
+            margin: 10px 10px;
+        }
+
+        .wrap div .active1 {
+            transform: rotateY(180deg);
+        }
+
+        .wrap div .active2 {
+            transform: rotateY(360deg);
+        }
+
+        .wrap p {
+            border-radius: 10px;
+            background-color: blueviolet;
+            transition: 1s;
+            backface-visibility: hidden;
+            display: block;
+            height: 60px;
+            width: 60px;
+            position: absolute;
+            /* transform: rotateY(180deg); */
+        }
+
+        .wrap .bottom {
+            transform: rotateY(180deg);
+        }
+
+        h3 {
+            text-align: center;
+            width: 200px;
+            height: 30px;
+            margin: 150px auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="wrap">
+        <div>
+            <p class="top"></p>
+            <p class="bottom"></p>
+        </div>
+        <div>
+            <p class="top"></p>
+            <p class="bottom"></p>
+        </div>
+        <div>
+            <p class="top"></p>
+            <p class="bottom"></p>
+        </div>
+        <div>
+            <p class="top"></p>
+            <p class="bottom"></p>
+        </div>
+        <div>
+            <p class="top"></p>
+            <p class="bottom"></p>
+        </div>
+        <div>
+            <p class="top"></p>
+            <p class="bottom"></p>
+        </div>
+        <div>
+            <p class="top"></p>
+            <p class="bottom"></p>
+        </div>
+        <div>
+            <p class="top"></p>
+            <p class="bottom"></p>
+        </div>
+        <div>
+            <p class="top"></p>
+            <p class="bottom"></p>
+        </div>
+        <div>
+            <p class="top"></p>
+            <p class="bottom"></p>
+        </div>
+        <div>
+            <p class="top"></p>
+            <p class="bottom"></p>
+        </div>
+        <div>
+            <p class="top"></p>
+            <p class="bottom"></p>
+        </div>
+        <div>
+            <p class="top"></p>
+            <p class="bottom"></p>
+        </div>
+        <div>
+            <p class="top"></p>
+            <p class="bottom"></p>
+        </div>
+        <div>
+            <p class="top"></p>
+            <p class="bottom"></p>
+        </div>
+        <div>
+            <p class="top"></p>
+            <p class="bottom"></p>
+        </div>
+        <h3></h3>
+    </div>
+</body>
+
+<script>
+//     需求分析
+// 1、生成两组顺序随机的1-8数据
+// 2、卡片需要有翻转效果
+// 3、两次翻转数据不相等，回复原状
+// 4、两次翻转数据相等，卡片相等，不能再被点击
+// 5、当所有卡片不能被点击游戏结束
+// 6、限制最大点击次数50次
+    class Game {
+        constructor(selector) {
+            this.init(selector);
+        }
+        init(selector) {
+            let arr = this.randomArr();
+            this.nodes = [...document.querySelectorAll(selector)];//获取每一个卡片
+            this.step = 50;//定义可以被点击的次数
+            this.tit = document.querySelector("h3");
+            this.nodes.forEach((item, index) => {//初始化卡片的值，并保存在num属性中
+                item.children[1].innerHTML = arr[index];
+                item.num = arr[index];
+                var that = this
+                item.onclick = function () {//给每一个卡片绑定事件
+                    that.handle(this);
+                }
+            })
+        }
+        handle(ele) {
+            if (this.step === 0) {
+                alert('游戏结束')
+                return
+            }
+            if (ele.active !== true) {
+                this.step--;
+                this.tit.innerText = `剩余步数：${this.step}`
+            }
+            ele.children[0].classList.add('active1');//卡片翻转
+            ele.children[1].classList.add('active2');
+            let res = this.nodes.filter(item => item.children[0].classList.contains('active1') && item.active !== true); //获取翻过来的且没有配对成功的卡片
+            if (res.length === 2 && res[0].num !== res[1].num) {//如果有两张并且数值不相等，恢复原状 
+                setTimeout(() => {
+                    res[0].children[0].classList.remove('active1');
+                    res[0].children[1].classList.remove('active2');
+                    res[1].children[0].classList.remove('active1');
+                    res[1].children[1].classList.remove('active2');
+                }, 1000)//延迟一秒形成动画 
+            } else if (res.length === 2 && res[0].num === res[1].num) {//如果数值相等则配对成功
+                res[0].active = true;//锁定卡片
+                res[1].active = true;
+            }
+        }
+        randomArr() {
+            let arr = [];
+            for (let i = 0, n = 8; i < n; i++) {
+                do {
+                    var item = randomInt(1, 8);
+                } while (arr.indexOf(item) !== -1)
+                arr.push(item);
+            }
+            arr.push(...arr);
+            return arr;
+        }
+    }
+    new Game('.wrap div')
+    function randomInt(min, max) {//产生[min,max]范围内的整数
+        return Math.round(Math.random() * (max - min)) + min
+    }
+</script>
