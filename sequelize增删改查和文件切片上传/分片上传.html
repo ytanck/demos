@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>分片上传</title>
+    <style>
+      html,
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.2.0/axios.js"></script>
+    <script src="https://xiaojinhe-cdn.iyoudui.cn/upload/common/2022129/spark-md5.min.js"></script>
+    <input type="file" name="file" id="ipt" />
+    <button onclick="upload(0)">上传</button>
+    <script>
+      const chunkSize = 1024 * 1024; // 默认分片大小为1兆。1kb = 1024byte, 1m = 1024 kb
+      // let fileFingerprint = undefined;
+      function upload(index) {
+        const file = ipt.files[0];
+        if (!file) return alert("请您先选择要上传的文件~~");
+        const { name, type, size } = file;
+
+        // 生成文件hash
+        const spark = new SparkMD5.ArrayBuffer();
+        spark.append(file);
+        const hexHash = spark.end();
+        // 生成文件后缀
+        const extName = name.substring(name.lastIndexOf("."));
+        const startIndex = chunkSize * index;
+
+        // 文件上传完，终止递归同时合并文件
+        if (startIndex > size) {
+          axios
+            .post("http://localhost:9528/merge", {
+              fileName: name,
+              hexHash,
+              extName,
+            })
+            .then((res) => {
+              // fileFingerprint = undefined;
+              console.log(res);
+            });
+          return;
+        }
+        const endIndex =
+          startIndex + chunkSize > size ? size : startIndex + chunkSize;
+        const blobPart = file.slice(startIndex, endIndex, type);
+        // FormData 直接上传切片后的文件，文件名默认为 blob（ filename="blob"）
+        // 这里通过 File 给个文件名
+        const blobFile = new File([blobPart], `${hexHash}-${index}${extName}`, {
+          type,
+        });
+        // 创建虚拟表单进行文件上传
+        const vform = new FormData();
+        vform.append("vform", blobFile);
+        axios.post("http://localhost:9528/upload", vform, {
+            onUploadProgress(e) {
+              console.log('进度', e.loaded, e.total);
+            },
+          })
+          .then((res) => {
+            // console.log(res);
+            // 分片 => 通过递归实现
+            upload(++index);
+          });
+      }
+    </script>
+  </body>
+</html>

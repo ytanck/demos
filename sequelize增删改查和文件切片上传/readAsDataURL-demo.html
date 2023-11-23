@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>readAsDataURL-demo</title>
+  </head>
+  <body>
+    <p>
+      <label>请选择一个文件：</label>
+      <input type="file" id="imagefile" />
+      <input type="button" value="读取图像" onClick="readAsDataURL()" />
+    </p>
+    <div name="result" id="result">
+      <!-- 这里用来显示图片结果-->
+    </div>
+    <script>
+      function readAsDataURL() {
+        if (typeof FileReader == "undifined") {
+          //判断浏览器是否支持filereader
+          result.innerHTML = "<p>抱歉，你的浏览器不支持 FileReader</p>";
+          return false;
+        }
+        var file = document.getElementById("imagefile").files[0];
+        if (!file) return console.log("请选择文件");
+        if (!/image\/\w+/.test(file.type)) {
+          //判断获取的是否为图片文件
+          alert("请确保文件为图像文件");
+          return false;
+        }
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function (e) {
+          // var result = document.getElementById("result");
+          // console.log(result,reader);
+          result.innerHTML = '<img src="' + this.result + '" alt=""/>';
+        };
+      }
+
+      function getBase64Image(img) {
+        var canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+        var dataURL = canvas.toDataURL("image/png");
+        return dataURL;
+        // return dataURL.replace("data:image/png;base64,", "");
+      }
+
+      function main() {
+        var img = document.createElement("img");
+        img.src =
+          "https://ts1.cn.mm.bing.net/th?id=OIP-C.nRlAFygdctTCHmIWN7GxRwHaEK&w=333&h=187&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2";
+        img.crossOrigin = "anonymous";
+        img.onload = function () {
+          // debugger;
+          var data = getBase64Image(img);
+          var img1 = document.createElement("img");
+          img1.src = data;
+          document.body.appendChild(img1);
+          console.log(data);
+        };
+      }
+      // main();
+    </script>
+  </body>
+</html>

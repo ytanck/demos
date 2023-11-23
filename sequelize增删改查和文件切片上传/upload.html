@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>文件上传</title>
+    <style>
+      html,
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.2.0/axios.js"></script>
+    <input type="file" name="file" id="ipt" />
+    <button onclick="upload()" type="button">上传</button>
+    <script>
+      function upload() {
+        const file = ipt.files[0];
+        if (!file) return alert("请您先选择要上传的文件~~");
+        const formData = new FormData();
+        formData.append("formData", file, file.name);
+        // console.log(formData);
+        axios.post("http://localhost:9528/upload", formData).then((res) => {
+          console.log(formData, res);
+        });
+      }
+
+      // 切割文件
+      function sliceFile(file, piece = 1024 * 1024 * 5) {
+        let totalSize = file.size; // 文件总大小
+        let start = 0; // 每次上传的开始字节
+        let end = start + piece; // 每次上传的结尾字节
+        let chunks = [];
+        while (start < totalSize) {
+          // 根据长度截取每次需要上传的数据
+          // File对象继承自Blob对象，因此包含slice方法
+          let blob = file.slice(start, end);
+          chunks.push(blob);
+          start = end;
+          end = start + piece;
+        }
+        return chunks;
+      }
+    </script>
+  </body>
+</html>
