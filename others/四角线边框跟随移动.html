@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>四角线边框跟随移动</title>
+    <style>
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+        position: relative;
+        gap: 20px;
+        width: 600px;
+        height: 400px;
+        margin: 20px auto;
+      }
+
+      .point {
+        --l:20px; /* 线框四角线长 */
+        --g:5px; /* 线框与图片间距 */
+        --t:2px; /* 线框粗细 */
+        --s: 0; /* 图片尺寸，动态，假设200 */
+        --x: 0; /* 图片左上角的横坐标，动态 */
+        --y: 0; /* 图片左上角的纵坐标，动态 */
+        position: absolute;
+        width: calc(var(--s) + var(--g) * 2);
+        height: calc(var(--s) + var(--g) * 2);
+        border: calc(var(--t)) solid red;
+        left: calc(var(--x) - var(--g));
+        top: calc(var(--y) - var(--g));
+        transition: 0.2s;
+        /* background-->mask */
+        mask: conic-gradient(at var(--l) var(--l),transparent 75%,blue 75%) left top/calc(100% - var(--l)) calc(100% - var(--l)) repeat;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="point"></div>
+      <div class="item">
+        <img src="./avatar.jpg" alt="" />
+      </div>
+      <div class="item">
+        <img src="./avatar.jpg" alt="" />
+      </div>
+      <div class="item">
+        <img src="./avatar.jpg" alt="" />
+      </div>
+      <div class="item">
+        <img src="./avatar.jpg" alt="" />
+      </div>
+      <div class="item">
+        <img src="./avatar.jpg" alt="" />
+      </div>
+      <div class="item">
+        <img src="./avatar.jpg" alt="" />
+      </div>
+    </div>
+
+    <script>
+      const point = document.querySelector(".point");
+      const imgs = document.querySelectorAll(".container img");
+      imgs.forEach((img) => {
+        img.addEventListener("mousemove", (e) => {
+          // const rect = img.getBoundingClientRect();//相对于viewport视口
+          // const x = rect.left;
+          // const y = rect.top;
+          // const s = rect.width;
+          // offset相对于最近position定位祖先元素
+          const x = img.offsetLeft;
+          const y = img.offsetTop;
+          const s = img.offsetWidth;
+          console.log(x, y, s);
+          point.style.setProperty("--x", x + 'px');
+          point.style.setProperty("--y", y + 'px');
+          point.style.setProperty("--s", s + 'px');
+        });
+      });
+    </script>
+  </body>
+</html>
