@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>OCR 图文识别</title>
+    <!-- <script src="https://unpkg.com/tesseract.js@2.1.1/dist/tesseract.min.js"></script> -->
+    <script src="https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js"></script>
+  </head>
+  <body>
+    <h1>OCR 图文识别</h1>
+    <input type="file" id="imageFile" accept="image/*" />
+    <br />
+    <button onclick="recognizeImg()">识别图像</button>
+    <br />
+    <h2>识别结果：</h2>
+    <div id="result">???</div>
+
+    <script>
+      const worker = Tesseract.createWorker({
+        logger: function (m) {
+          console.log(m);
+        },
+      });
+
+      async function recognizeImg() {
+        const fileInput = document.getElementById("imageFile");
+        const selectedFile = fileInput.files[0];
+        console.log(selectedFile);
+        await worker.load();
+        await worker.loadLanguage(["eng", "chi_sim"]);
+        await worker.initialize(["eng", "chi_sim"]);
+
+        const ret = await worker.recognize(selectedFile);
+        console.log(ret.data.text);
+        handleOCRResponse(ret.data);
+
+        // 或者使用 FileReader方式
+        // handleFileFn(selectedFile);
+      }
+
+      function handleFileFn(file) {
+        // 使用 FileReader 读取图像文件内容
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const imageDataURL = e.target.result;
+          // 上传图像文件至 OCR API
+          uploadImageToOCR(imageDataURL);
+        };
+        reader.readAsDataURL(file);
+      }
+
+      async function uploadImageToOCR(imageDataURL) {
+        await worker.load();
+        await worker.loadLanguage(["eng", "chi_sim"]);
+        await worker.initialize(["eng", "chi_sim"]);
+        const ret = await worker.recognize(imageDataURL);
+        console.log(ret.data.text);
+        if (ret.data) {
+          handleOCRResponse(ret.data);
+        }
+      }
+
+      function handleOCRResponse(data) {
+        const resultDiv = document.getElementById("result");
+
+        if (data && data.text) {
+          resultDiv.textContent = data.text;
+        } else {
+          resultDiv.textContent = "未能识别文本。";
+        }
+      }
+    </script>
+  </body>
+</html>
