@@ -30,7 +30,7 @@
         await worker.loadLanguage(["eng", "chi_sim"]);
         await worker.initialize(["eng", "chi_sim"]);
 
-        const ret = await worker.recognize(selectedFile);
+        const ret = await worker.recognize(selectedFile||'https://tesseract.projectnaptha.com/img/eng_bw.png');
         console.log(ret.data.text);
         handleOCRResponse(ret.data);
 
