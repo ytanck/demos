@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>html变量替换</title>
+  <style>
+    span {
+      outline: none;
+    }
+
+    .r {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <!-- <span>111</span>
+    <span contenteditable="true" class="r" oninput="aaa()">222</span>
+    <span>333</span>
+    <span contenteditable="true" class='r' oninput="aaa()">444</span>
+    <span>555</span> -->
+  </div>
+  <script>
+    var data = {
+      content: '【提示】${var1}祝您开心，${var2}祝您晚安',
+      vars: { var1: '小王', var2: '小杨' }
+    }
+    var wrap = document.getElementsByClassName('wrap')
+    function aaa() {
+      console.log(wrap[0].innerText);
+    }
+    function replaceVars(str, vars) {
+      return str.replace(/\$\{(\w+)\}/g, function (match, key) {
+        return vars[key] || match;
+      });
+    }
+    // var formattedContent = replaceVars(data.content, data.vars);
+    // console.log(formattedContent);
+    var arr = data.content.split(/\$\{(\w+)\}/g)
+    console.log(arr);
+    var d = document.createElement('div')
+    for (let i = 0; i < arr.length; i++) {
+      const text = arr[i];
+      console.log(1, text);
+      var span = document.createElement('span')
+      span.innerText = text
+      if (text.startsWith('var')) {
+        span.innerText = data.vars[text]
+        span.setAttribute('class', 'r')
+        span.setAttribute('contenteditable', true)
+        span.oninput = function () {
+          console.log(wrap[0].innerText);
+        }
+      } else { }
+
+      d.appendChild(span)
+    }
+    console.log(d);
+    wrap[0].appendChild(d)
+
+  </script>
+</body>
+
+</html>
