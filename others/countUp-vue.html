@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vue-Document</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/@vueuse/shared"></script>
+    <script src="https://unpkg.com/@vueuse/core"></script>
+    <script src="https://unpkg.com/countup@1.8.2/dist/countUp.min.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <span>{{message}}---count：{{count}}</span>
+      <br />
+      <button @click="count+=121">
+        增加-useTransition--Count is: {{ Math.floor(output) }}
+      </button>
+      <div id="countup" ref="countupRef">1</div>
+      <button @click="initCount">增加-CountUp：{{}}</button>
+    </div>
+    <script>
+      const { createApp, ref, onMounted } = Vue;
+      const { TransitionPresets, useTransition } = VueUse;
+      let demo = new CountUp("countup", 100, 199);
+      createApp({
+        setup() {
+          const countupRef = ref(null);
+          const message = ref("Hello vue!");
+          const count = ref(0);
+          const output = useTransition(count, {
+            duration: 1000,
+            transition: TransitionPresets.easeInOutCubic,
+          });
+          onMounted(() => {
+            // console.log(countupRef.value);
+          });
+          const initCount = () => {
+            num1 = new CountUp(countupRef.value, 2,100);
+            num1.start();
+          };
+          return {
+            message,
+            count,
+            output,
+            initCount,
+            countupRef
+          };
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
