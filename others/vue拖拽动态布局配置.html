@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue动态布局配置器</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+    header {
+      text-align: center;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      color: #7f8c8d;
+      font-size: 1.1rem;
+    }
+    .main-content {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .preview-section, .config-section {
+      flex: 1;
+      min-width: 300px;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .section-title {
+      font-size: 1.3rem;
+      color: #3498db;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #eee;
+    }
+    .div-item {
+      padding: 25px;
+      margin: 15px 0;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-align: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .div-1 { background: #ff7675; color: white; }
+    .div-2 { background: #74b9ff; color: white; }
+    .div-3 { background: #55efc4; color: #2d3436; }
+    .config-list {
+      list-style: none;
+    }
+    .config-item {
+      background: #f8f9fa;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: move;
+      transition: all 0.3s ease;
+      border: 1px solid #e9ecef;
+    }
+    .config-item:hover {
+      background: #e9ecef;
+      transform: translateY(-2px);
+    }
+    .item-number {
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      line-height: 30px;
+      text-align: center;
+      border-radius: 50%;
+      color: white;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s ease;
+    }
+    .btn-primary {
+      background: #3498db;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #2980b9;
+    }
+    .btn-secondary {
+      background: #95a5a6;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: #7f8c8d;
+    }
+    .drag-over {
+      border: 2px dashed #3498db;
+    }
+    .instructions {
+      background: #fff8e1;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      border-left: 4px solid #ffc107;
+    }
+    .instructions h3 {
+      color: #ff9800;
+      margin-bottom: 10px;
+    }
+    .instructions ol {
+      padding-left: 20px;
+    }
+    .instructions li {
+      margin-bottom: 8px;
+    }
+    @media (max-width: 768px) {
+      .main-content {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="container">
+      <header>
+        <h1>Vue动态布局配置器</h1>
+        <p class="subtitle">通过配置项动态调整DIV元素的显示顺序</p>
+      </header>
+      
+      <div class="main-content">
+        <div class="preview-section">
+          <h2 class="section-title">布局预览</h2>
+          <div class="div-item" :class="'div-'+item.id" v-for="item in orderedDivs" :key="item.id">
+            DIV {{item.id}} - {{item.content}}
+          </div>
+        </div>
+        
+        <div class="config-section">
+          <h2 class="section-title">顺序配置</h2>
+          <ul class="config-list" ref="configList">
+            <li 
+              v-for="(item, index) in divOrder" 
+              :key="item.id"
+              class="config-item"
+              draggable="true"
+              @dragstart="dragStart(index)"
+              @dragover="dragOver($event, index)"
+              @drop="drop(index)"
+              @dragenter.prevent
+            >
+              <div>
+                <span class="item-number" :class="'div-'+item.id">{{index + 1}}</span>
+                <span>DIV {{item.id}} - {{item.content}}</span>
+              </div>
+              <div class="buttons">
+                <button @click="moveUp(index)" :disabled="index === 0">↑</button>
+                <button @click="moveDown(index)" :disabled="index === divOrder.length - 1">↓</button>
+              </div>
+            </li>
+          </ul>
+          
+          <div class="buttons" style="margin-top: 20px;">
+            <button class="btn-primary" @click="saveConfig">保存配置</button>
+            <button class="btn-secondary" @click="resetConfig">重置配置</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="instructions">
+        <h3>使用说明</h3>
+        <ol>
+          <li>拖拽配置项列表中的项目可以调整顺序</li>
+          <li>也可以使用每个项目右侧的上下箭头按钮进行调整</li>
+          <li>点击"保存配置"按钮将保存当前配置到本地存储</li>
+          <li>点击"重置配置"按钮将恢复默认顺序</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        divs: [
+          { id: 1, content: '第一个元素' },
+          { id: 2, content: '第二个元素' },
+          { id: 3, content: '第三个元素' }
+        ],
+        divOrder: [],
+        draggedIndex: null
+      },
+      computed: {
+        orderedDivs() {
+          return this.divOrder.map(index => this.divs[index]);
+        }
+      },
+      created() {
+        this.loadConfig();
+      },
+      methods: {
+        loadConfig() {
+          const savedOrder = localStorage.getItem('divOrder');
+          if (savedOrder) {
+            this.divOrder = JSON.parse(savedOrder);
+          } else {
+            // 默认顺序
+            this.divOrder = [0, 1, 2];
+          }
+        },
+        saveConfig() {
+          localStorage.setItem('divOrder', JSON.stringify(this.divOrder));
+          alert('配置已保存！刷新页面后配置依然有效。');
+        },
+        resetConfig() {
+          this.divOrder = [0, 1, 2];
+          localStorage.removeItem('divOrder');
+        },
+        moveUp(index) {
+          if (index > 0) {
+            const temp = this.divOrder[index];
+            this.$set(this.divOrder, index, this.divOrder[index - 1]);
+            this.$set(this.divOrder, index - 1, temp);
+          }
+        },
+        moveDown(index) {
+          if (index < this.divOrder.length - 1) {
+            const temp = this.divOrder[index];
+            this.$set(this.divOrder, index, this.divOrder[index + 1]);
+            this.$set(this.divOrder, index + 1, temp);
+          }
+        },
+        dragStart(index) {
+          this.draggedIndex = index;
+        },
+        dragOver(event, index) {
+          event.preventDefault();
+          event.currentTarget.classList.add('drag-over');
+        },
+        drop(index) {
+          event.preventDefault();
+          event.currentTarget.classList.remove('drag-over');
+          
+          if (this.draggedIndex !== null) {
+            const movedItem = this.divOrder[this.draggedIndex];
+            this.divOrder.splice(this.draggedIndex, 1);
+            this.divOrder.splice(index, 0, movedItem);
+            this.draggedIndex = null;
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
