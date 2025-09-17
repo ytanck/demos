@@ -1,0 +1,39 @@
+{
+  "name": "node-slider-verify",
+  "version": "1.0.0",
+  "description": "puppeteer Crack captcha",
+  "scripts": {
+    "start": "npx tsc"
+  },
+  "keywords": [
+    "puppeteer",
+    "gm",
+    "tesseract",
+    "resemble"
+  ],
+  "author": "",
+  "repository": {
+    "type": "nodejs",
+    "url": ""
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@types/fs-extra": "^5.0.4",
+    "@types/lodash": "^4.14.119",
+    "@types/node": "^10.12.18",
+    "@types/puppeteer": "^1.11.1",
+    "acedia": "0.0.3",
+    "canvas": "^2.2.0",
+    "fs-extra": "^7.0.1",
+    "get-pixels": "^3.3.2",
+    "gm": "^1.23.1",
+    "image-pixels": "^2.2.0",
+    "inquirer": "^6.2.1",
+    "lodash": "^4.17.11",
+    "node-tesseract": "^0.2.7",
+    "puppeteer": "^1.11.0",
+    "resemblejs": "^3.0.0",
+    "restler": "^3.4.0",
+    "typescript": "^2.9.2"
+  }
+}
