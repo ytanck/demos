@@ -22,3 +22,4 @@ const msgDecrypted => (content, key) {
 }
 
 ```
+
