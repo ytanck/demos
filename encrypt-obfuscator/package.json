@@ -1,0 +1,16 @@
+{
+  "name": "encry",
+  "version": "1.0.0",
+  "main": "ckutils.js",
+  "scripts": {
+    "obfuscate": "javascript-obfuscator ckutils.js --output ckutils.obfuscated.js --config obfuscator.config.json",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "javascript-obfuscator": "^5.4.1"
+  }
+}
